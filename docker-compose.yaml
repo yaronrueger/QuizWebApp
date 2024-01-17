@@ -1,0 +1,49 @@
+version: "3.7"
+services:
+  backend:
+    build: ./backend
+    container_name: "quiz-backend"
+    restart: unless-stopped
+    environment:
+      # - DB_URL=/app/data/database.sqlite3
+      DB_URL: postgres://postgres:xXx_Change_me_xXx@database:5432/quiz
+      JWT_SECRET: xXx_Change_me_xXx
+    networks:
+      - reverse-proxy
+      - database
+
+  frontend:
+    build: ./frontend
+    container_name: "quiz-frontend"
+    restart: unless-stopped
+    networks:
+      - reverse-proxy
+
+  database:
+    image: postgres:latest
+    restart: unless-stopped
+    environment:
+      POSTGRES_PASSWORD: xXx_Change_me_xXx
+      POSTGRES_DB: quiz
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - database
+
+  # router:
+  #   build: ./nginx
+  #   restart: unless-stopped
+  #   ports:
+  #     - 8080:80
+  #   networks:
+  #     - reverse-proxy
+
+volumes:
+  postgres-data:
+    driver: local  
+
+networks:
+  reverse-proxy:
+    name: reverse-proxy
+  database:
+    name: database
